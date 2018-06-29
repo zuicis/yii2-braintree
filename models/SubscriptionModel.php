@@ -13,6 +13,10 @@ use yii\db\Expression;
 use yii2mod\behaviors\CarbonBehavior;
 use yii2mod\braintree\BraintreeService;
 use yii2mod\collection\Collection;
+/**
+* asinfotrack/yii2-audittrail
+*/
+use asinfotrack\yii2\audittrail\behaviors\AuditTrailBehavior;
 
 /**
  * This is the model class for table "Subscription".
@@ -75,27 +79,31 @@ class SubscriptionModel extends ActiveRecord
     /**
      * @inheritdoc
      */
-    public function behaviors()
-    {
-        return [
-            'timestamp' => [
+
+    public function behaviors(){
+        $bh = [];
+        if (class_exists(AuditTrailBehavior::class)){
+            $bh['audittrail'] = [
+                'class' => AuditTrailBehavior::className(),
+            ];            
+        }
+        $bh['timestamp'] = [
                 'class' => 'yii\behaviors\TimestampBehavior',
                 'createdAtAttribute' => 'createdAt',
                 'updatedAtAttribute' => 'updatedAt',
                 'value' => function () {
                     $currentDateExpression = Yii::$app->db->getDriverName() === 'sqlite' ? "DATETIME('now')" : 'NOW()';
-
                     return new Expression($currentDateExpression);
                 },
-            ],
-            'carbon' => [
+            ];         
+        $bh['carbon'] = [
                 'class' => CarbonBehavior::className(),
                 'attributes' => [
                     'trialEndAt',
                     'endAt',
                 ],
-            ],
-        ];
+            ]; 
+        return $bh;
     }
 
     /**
