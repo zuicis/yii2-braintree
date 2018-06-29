@@ -10,9 +10,11 @@ use Yii;
 use yii\base\Exception;
 use yii\db\ActiveRecord;
 use yii\db\Expression;
+use yii\data\ActiveDataProvider;
 use yii2mod\behaviors\CarbonBehavior;
 use yii2mod\braintree\BraintreeService;
 use yii2mod\collection\Collection;
+
 /**
 * asinfotrack/yii2-audittrail
 */
@@ -450,4 +452,17 @@ class SubscriptionModel extends ActiveRecord
     {
         return BraintreeSubscription::find($this->braintreeId);
     }
+
+    public function search($params){
+        $query = Self::find();
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+        ]);
+        $this -> load($params);
+        if (!$this -> validate()) {
+            return $dataProvider;
+        }
+        return $dataProvider;
+    }
+
 }
